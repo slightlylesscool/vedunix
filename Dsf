@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+// Structure for the binary search tree node
+struct Node {
+    char mnemonic[20];
+    struct Node* left;
+    struct Node* right;
+};
+
+// Function to create a new node
+struct Node* createNode(char mnemonic[]) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    strcpy(newNode->mnemonic, mnemonic);
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert a node into the binary search tree
+struct Node* insertNode(struct Node* root, char mnemonic[]) {
+    if (root == NULL) {
+        return createNode(mnemonic);
+    }
+    if (strcmp(mnemonic, root->mnemonic) < 0) {
+        root->left = insertNode(root->left, mnemonic);
+    } else if (strcmp(mnemonic, root->mnemonic) > 0) {
+        root->right = insertNode(root->right, mnemonic);
+    }
+    return root;
+}
+
+// Function to display the binary search tree level-wise
+void displayLevelOrder(struct Node* root) {
+    if (root == NULL) {
+        return;
+    }
+    struct Node* queue[100];
+    int front = -1, rear = -1;
+    queue[++rear] = root;
+    while (front != rear) {
+        struct Node* temp = queue[++front];
+        printf("%s ", temp->mnemonic);
+        if (temp->left != NULL) {
+            queue[++rear] = temp->left;
+        }
+        if (temp->right != NULL) {
+            queue[++rear] = temp->right;
+        }
+    }
+}
+
+// Function to calculate the height of the binary search tree
+int getHeight(struct Node* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    int leftHeight = getHeight(root->left);
+    int rightHeight = getHeight(root->right);
+    return 1 + (leftHeight > rightHeight ? leftHeight : rightHeight);
+}
+
+// Function to search for a node in the binary search tree
+bool searchNode(struct Node* root, char mnemonic[]) {
+    if (root == NULL) {
+        return false;
+    }
+    if (strcmp(mnemonic, root->mnemonic) == 0) {
+        return true;
+    } else if (strcmp(mnemonic, root->mnemonic) < 0) {
+        return searchNode(root->left, mnemonic);
+    } else {
+        return searchNode(root->right, mnemonic);
+    }
+}
+
+int main() {
+    struct Node* root = NULL;
+    int choice;
+    char mnemonic[20];
+    do {
+        printf("\n1. Insert mnemonic\n2. Display level-wise\n3. Height of tree\n4. Search for node\n5. Exit\nEnter your choice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                printf("Enter mnemonic to insert: ");
+                scanf("%s", mnemonic);
+                root = insertNode(root, mnemonic);
+                break;
+            case 2:
+                printf("Level-wise traversal: ");
+                displayLevelOrder(root);
+                break;
+            case 3:
+                printf("Height of the tree is: %d", getHeight(root));
+                break;
+            case 4:
+                printf("Enter mnemonic to search: ");
+                scanf("%s", mnemonic);
+                if (searchNode(root, mnemonic)) {
+                    printf("%s found in the tree.", mnemonic);
+                } else {
+                    printf("%s not found in the tree.", mnemonic);
+                }
+                break;
+            case 5:
+                printf("Exiting...");
+                break;
+            default:
+                printf("Invalid choice! Please enter a valid option.");
+        }
+    } while (choice != 5);
+
+    return 0;
+}
